@@ -94,7 +94,36 @@ func importCsv(csvName string) {
 	}
 }
 
+func executeSql(sqlQuery string) {
+	var dbName string = "expenses.db"
+
+	// Initialise DB
+	db, err := sql.Open("sqlite3", dbName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("ping failed: %s", err)
+	}
+
+	// Create table
+	stmt, err := db.Prepare(sqlQuery)
+	if err != nil {
+		log.Fatalf("prepare failed: %s", err)
+	}
+
+	_, err = stmt.Exec()
+	if err != nil {
+		log.Fatalf("exec failed: %s", err)
+	}
+}
+
+
 func main() {
   importCsv("small-with-columns.csv")
+  executeSql("alter table expenses add column transactionType")
+  executeSql("select * from expenses")
 //   getDebet()
 }
