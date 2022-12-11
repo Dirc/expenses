@@ -8,22 +8,36 @@ import (
 	"io"
 	"log"
 	"os"
+// 	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// func connectDB(dbName string) {
-// 	// Initialise DB
-// 	db, err := sql.Open("sqlite3", dbName)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer db.Close()
-// 	err = db.Ping()
-// 	if err != nil {
-// 		log.Fatalf("ping failed: %s", err)
-//     }
-// }
+func executeSql(sqlQuery string) {
+	var dbName string = "expenses.db"
+
+	// Initialise DB
+	db, err := sql.Open("sqlite3", dbName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("ping failed: %s", err)
+	}
+
+	// Create table
+	stmt, err := db.Prepare(sqlQuery)
+	if err != nil {
+		log.Fatalf("prepare failed: %s", err)
+	}
+
+	_, err = stmt.Exec()
+	if err != nil {
+		log.Fatalf("exec failed: %s", err)
+	}
+}
 
 func importCsv(csvName string) {
 	var dbName string = "expenses.db"
@@ -42,7 +56,7 @@ func importCsv(csvName string) {
 	}
 
 	// Create table
-	stmt, err := db.Prepare("create table if not exists expenses (boekdatum text, rekeningnummer text, bedrag real, debetCredit text, naamTegenrekening text, tegenrekening text, code text, omschrijving text, saldoNaBoeking text)")
+	stmt, err := db.Prepare("create table if not exists expenses (boekdatum text, rekeningnummer text, bedrag real, debetCredit text, naamTegenrekening text, tegenrekening text, code text, omschrijving text, saldoNaBoeking text, transactionType text)")
 	if err != nil {
 		log.Fatalf("prepare failed: %s", err)
 	}
@@ -80,9 +94,10 @@ func importCsv(csvName string) {
         code                := record[6]
         omschrijving        := record[7]
         saldoNaBoeking      := record[8]
+        //transactionType     := record[9] // extra column, not in csv
 
 		// Map csv columns to DB columns
-		stmt, err = db.Prepare("insert into expenses(boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking) values(?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		stmt, err = db.Prepare("insert into expenses(boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType) values(?, ?, ?, ?, ?, ?, ?, ?, ?, 'unknown')")
 		if err != nil {
 			log.Fatalf("insert prepare failed: %s", err)
 		}
@@ -94,36 +109,8 @@ func importCsv(csvName string) {
 	}
 }
 
-func executeSql(sqlQuery string) {
-	var dbName string = "expenses.db"
-
-	// Initialise DB
-	db, err := sql.Open("sqlite3", dbName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("ping failed: %s", err)
-	}
-
-	// Create table
-	stmt, err := db.Prepare(sqlQuery)
-	if err != nil {
-		log.Fatalf("prepare failed: %s", err)
-	}
-
-	_, err = stmt.Exec()
-	if err != nil {
-		log.Fatalf("exec failed: %s", err)
-	}
-}
-
-
 func main() {
   importCsv("small-with-columns.csv")
-  executeSql("alter table expenses add column transactionType")
   executeSql("select * from expenses")
 //   getDebet()
 }
