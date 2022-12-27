@@ -42,6 +42,9 @@ echo "SELECT SUM(bedrag) FROM expenses" | sqlite3 expenses.db
 # Sum of debet transactions
 echo "SELECT SUM(bedrag) FROM expenses WHERE debetCredit = 'Debet'" | sqlite3 expenses.db
 
+# Update transactionType based on naamTegenrekening
+echo "UPDATE expenses SET transactionType = 'booschappen' WHERE naamTegenrekening = 'PICNIC BY BUCKAROO';" | sqlite3 expenses.db 
+
 ```
 
 ## Columns
