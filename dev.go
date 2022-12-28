@@ -20,7 +20,8 @@ func createTable() {
     _, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL,
-        age INTEGER NOT NULL
+        age INTEGER NOT NULL,
+        sexe TEXT
     )`)
     if err != nil {
         log.Fatal(err)
@@ -75,12 +76,61 @@ func cleanDB() {
     fmt.Println("File deleted successfully!")
 }
 
+func generateSexe() {
+    db, err := sql.Open("sqlite3", "./dev.db")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+
+    values := []string{"Mijke", "Maud", "Resa"}
+
+    for _, value := range values {
+        _, err = db.Exec("UPDATE users SET sexe = 'women' WHERE name = (?)", value)
+        if err != nil {
+            log.Fatal(err)
+        }
+    }
+
+    fmt.Println("Values inserted successfully!")
+}
+
+func returnWomen() {
+    db, err := sql.Open("sqlite3", "./dev.db")
+    rows, err := db.Query("SELECT name, age, sexe FROM users WHERE sexe = 'women'")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var name string
+        var age int
+        var sexe string
+        if err := rows.Scan(&name, &age, &sexe); err != nil {
+            log.Fatal(err)
+        }
+        fmt.Printf("%s is a %d years old %s\n", name, age, sexe)
+    }
+
+    if err := rows.Err(); err != nil {
+        log.Fatal(err)
+    }
+}
+
+
 func main() {
   createTable()
+
   insertData("Mijke", 37)
   insertData("Resa", 5)
   insertData("Maud", 7)
   insertData("Eric", 37)
+
   returnAge(18)
+
+  generateSexe()
+  returnWomen()
+
   cleanDB()
 }
