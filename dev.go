@@ -118,6 +118,39 @@ func returnWomen() {
     }
 }
 
+func printTable() {
+    db, err := sql.Open("sqlite3", "./dev.db")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+
+    rows, err := db.Query("SELECT id, name, age, sexe FROM users")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var id int
+        var name string
+        var age int
+        var sexe sql.NullString
+        if err := rows.Scan(&id, &name, &age, &sexe); err != nil {
+            log.Fatal(err)
+        }
+        if sexe.Valid {
+            fmt.Printf("id: %d, name: %s, age: %d, sexe: %s\n", id, name, age, sexe.String)
+        } else {
+            fmt.Printf("id: %d, name: %s, age: %d, sexe: unknown\n", id, name, age)
+        }
+    }
+
+    if err := rows.Err(); err != nil {
+        log.Fatal(err)
+    }
+}
+
 
 func main() {
   createTable()
@@ -131,6 +164,8 @@ func main() {
 
   generateSexe()
   returnWomen()
+
+  printTable()
 
   cleanDB()
 }
