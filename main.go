@@ -13,8 +13,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func importCsv(csvName string) {
-	var dbName string = "expenses.db"
+var dbName string
+
+func importCsv(csvName string, dbName string) {
     // 	var csvName string = "small-with-columns.csv"
 
 	// Initialise DB
@@ -30,7 +31,9 @@ func importCsv(csvName string) {
 	}
 
 	// Create table
-	stmt, err := db.Prepare("create table if not exists expenses (boekdatum text, rekeningnummer text, bedrag real, debetCredit text, naamTegenrekening text, tegenrekening text, code text, omschrijving text, saldoNaBoeking text, transactionType text)")
+	// Columns "bedrag" and "saldoNaBoeking" are defined as TEXT since they have a comma as seperator (a dot is needed for type REAL/float64).
+	// We will convert it to a float64 when we start doing calculations
+	stmt, err := db.Prepare("CREATE TABLE IF NOT EXISTS expenses (boekdatum TEXT, rekeningnummer TEXT, bedrag REAL, debetCredit TEXT, naamTegenrekening TEXT, tegenrekening TEXT, code TEXT, omschrijving TEXT, saldoNaBoeking REAL, transactionType TEXT)")
 	if err != nil {
 		log.Fatalf("prepare failed: %s", err)
 	}
@@ -81,7 +84,102 @@ func importCsv(csvName string) {
 			log.Fatalf("insert failed(%s, %s, %s): %s", boekdatum, rekeningnummer, bedrag, err)
 		}
 	}
+    fmt.Printf("CSV file %s imported successfully as %s!\n", csvName, dbName)
 }
+
+func cleanDB(dbName string) {
+    err := os.Remove(dbName)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Printf("File %s deleted successfully!\n", dbName)
+}
+func printTable(dbName string) {
+	db, err := sql.Open("sqlite3", dbName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+    rows, err := db.Query("SELECT boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType FROM expenses")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var boekdatum string
+        var rekeningnummer string
+        var bedrag string
+        var debetCredit string
+        var naamTegenrekening string
+        var tegenrekening string
+        var code string
+        var omschrijving string
+        var saldoNaBoeking string
+        var transactionType string
+        if err := rows.Scan(&boekdatum, &rekeningnummer, &bedrag, &debetCredit, &naamTegenrekening, &tegenrekening, &code, &omschrijving, &saldoNaBoeking, &transactionType); err != nil {
+            log.Fatal(err)
+        }
+        fmt.Printf("boekdatum: %s, rekeningnummer: %s, bedrag: %s, debetCredit: %s, naamTegenrekening: %s, tegenrekening: %s, code: %s, omschrijving: %s, saldoNaBoeking: %s, transactionType: %s\n", boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType)
+    }
+
+    if err := rows.Err(); err != nil {
+        log.Fatal(err)
+    }
+}
+
+func generateTransactionType(dbName string) {
+	db, err := sql.Open("sqlite3", dbName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+    transactionTypeMap := make(map[string][]string)
+    transactionTypeMap["transactionType"] = []string{"Boodschappen"}
+    transactionTypeMap["naamTegenrekening"] = []string{"PICNIC BY BUCKAROO"}
+    transactionTypeMap["tegenrekening"] = []string{"tegenrekening"}
+    transactionTypeMap["omschrijving"] = []string{"Bakkerij Neplenbroek%", "ALBERT HEIJN%"}
+
+//     fmt.Println(m["key1"]) // prints ["Alice", "Bob", "Charlie"]
+//     fmt.Println(m["key2"]) // prints ["Dave", "Eve", "Frank"]
+
+    // General loop -> doesn't work!
+//     for dbColumn, dbColumnValues := range transactionTypeMap {
+//         // loop over all keys except the transactionType
+//         if dbColumn == "transactionType" {
+//             break
+//         }
+//         for _, value := range dbColumnValues {
+//             _, err = db.Exec("UPDATE expenses SET transactionType = 'Boodschappen' WHERE naamTegenrekening LIKE (?)", value)
+//             if err != nil {
+//                 log.Fatal(err)
+//             }
+//         }
+//     }
+
+    // naamTegenrekening
+    for _, value := range transactionTypeMap["naamTegenrekening"] {
+        _, err = db.Exec("UPDATE expenses SET transactionType = 'Boodschappen' WHERE naamTegenrekening LIKE (?)", value)
+        if err != nil {
+            log.Fatal(err)
+        }
+    }
+    // omschrijving
+    for _, value := range transactionTypeMap["omschrijving"] {
+        _, err = db.Exec("UPDATE expenses SET transactionType = 'Boodschappen' WHERE omschrijving LIKE (?)", value)
+        if err != nil {
+            log.Fatal(err)
+        }
+    }
+
+    fmt.Println("Values inserted successfully!")
+}
+
+
+// ----- refactor ------
 
 func executeSql(sqlQuery string) {
 	var dbName string = "expenses.db"
@@ -173,10 +271,14 @@ type transactionTypeTotal struct {
 // }
 
 func main() {
-  importCsv("small-with-columns.csv")
-  executeSql("select * from expenses")
+  dbName = "expenses.db"
+  cleanDB(dbName)
+  importCsv("small-with-columns.csv", dbName)
+  generateTransactionType(dbName)
+  printTable(dbName)
+//   executeSql("select * from expenses")
 //   returnSql("select bedrag from expenses WHERE omschrijving LIKE '%PICNIC%'")
 //   returnSql("SELECT SUM(bedrag) FROM expenses WHERE debetCredit = 'Debet'")
 //   getDebet()
-  returnSqlResults()
+//   returnSqlResults()
 }

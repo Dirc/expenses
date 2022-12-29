@@ -55,6 +55,8 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 
 ## ToDo
 
-- [ ] add column "transactionType": boodschappen, vakantie, vasteLasten, fun
-- [ ] regex string search lists for each transactionType
-- [ ] 
+- [x] add column "transactionType" e.g. boodschappen, vakantie, vasteLasten, fun
+- [ ] make generateTransactionType more general (map as input)
+  - store map in seperate table?
+- [ ] print total amount of a transactionType
+- [ ] unit tests
