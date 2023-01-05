@@ -84,9 +84,11 @@ func generateSexe() {
     defer db.Close()
 
     values := []string{"Mijke", "Maud", "Resa"}
+    var column string = "name"
+    sexe := "women"
 
     for _, value := range values {
-        _, err = db.Exec("UPDATE users SET sexe = 'women' WHERE name = (?)", value)
+        _, err = db.Exec("UPDATE users SET sexe = '" + sexe + "' WHERE " + column + " LIKE (?)", value)
         if err != nil {
             log.Fatal(err)
         }
@@ -151,6 +153,26 @@ func printTable() {
     }
 }
 
+func loopOverMap() {
+
+    m := map[string][]string{
+        "key0": []string{"category"},
+        "key1": []string{"Alice", "Bob", "Charlie"},
+        "key2": []string{"Dave", "Eve", "Frank"},
+        "key3": []string{"Gary", "Hannah", "Ian"},
+    }
+
+    category := m["key0"][0]
+    delete(m, "key0")
+
+    // Loop over key-value pairs
+    for k, _ := range m {
+        for _, v := range m[k] {
+            fmt.Printf("Key: %s, Value: %s, Category: %s\n", k, v, category)
+        }
+    }
+}
+
 
 func main() {
   createTable()
@@ -168,4 +190,7 @@ func main() {
   printTable()
 
   cleanDB()
+
+//   loopOverMap()
+
 }

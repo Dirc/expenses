@@ -57,6 +57,9 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 
 - [x] add column "transactionType" e.g. boodschappen, vakantie, vasteLasten, fun
 - [ ] make generateTransactionType more general (map as input)
-  - store map in seperate table?
-- [ ] print total amount of a transactionType
+  - [x] general for loop sql
+  - [ ] map as input
+  - [ ] define multiple maps
+    - store map in seperate table?
+- [ ] print total amount per transactionType
 - [ ] unit tests

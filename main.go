@@ -108,6 +108,10 @@ func printTable(dbName string) {
     }
     defer rows.Close()
 
+    // Newline before printing table
+    fmt.Printf("\n")
+
+    // Print table
     for rows.Next() {
         var boekdatum string
         var rekeningnummer string
@@ -137,41 +141,45 @@ func generateTransactionType(dbName string) {
 	}
 	defer db.Close()
 
+    // Map per transactionType
+    // - key: transactionType
+    // - keys for all column
     transactionTypeMap := make(map[string][]string)
     transactionTypeMap["transactionType"] = []string{"Boodschappen"}
     transactionTypeMap["naamTegenrekening"] = []string{"PICNIC BY BUCKAROO"}
-    transactionTypeMap["tegenrekening"] = []string{"tegenrekening"}
+    transactionTypeMap["tegenrekening"] = []string{"nog geen tegenrekening"}
     transactionTypeMap["omschrijving"] = []string{"Bakkerij Neplenbroek%", "ALBERT HEIJN%"}
 
-//     fmt.Println(m["key1"]) // prints ["Alice", "Bob", "Charlie"]
-//     fmt.Println(m["key2"]) // prints ["Dave", "Eve", "Frank"]
+    transactionType := transactionTypeMap["transactionType"][0]
+    delete(transactionTypeMap, "transactionType")
 
-    // General loop -> doesn't work!
-//     for dbColumn, dbColumnValues := range transactionTypeMap {
-//         // loop over all keys except the transactionType
-//         if dbColumn == "transactionType" {
-//             break
-//         }
-//         for _, value := range dbColumnValues {
-//             _, err = db.Exec("UPDATE expenses SET transactionType = 'Boodschappen' WHERE naamTegenrekening LIKE (?)", value)
-//             if err != nil {
-//                 log.Fatal(err)
-//             }
-//         }
-//     }
+    // General sql update
+    for column, _ := range transactionTypeMap {
+        for _, searchString := range transactionTypeMap[column] {
+            fmt.Printf("Column: %s, Value: %s, TransactionType: %s\n", column, searchString, transactionType)
 
-    // naamTegenrekening
-    for _, value := range transactionTypeMap["naamTegenrekening"] {
-        _, err = db.Exec("UPDATE expenses SET transactionType = 'Boodschappen' WHERE naamTegenrekening LIKE (?)", value)
-        if err != nil {
-            log.Fatal(err)
-        }
-    }
-    // omschrijving
-    for _, value := range transactionTypeMap["omschrijving"] {
-        _, err = db.Exec("UPDATE expenses SET transactionType = 'Boodschappen' WHERE omschrijving LIKE (?)", value)
-        if err != nil {
-            log.Fatal(err)
+            // Build query
+            query := "UPDATE expenses SET transactionType = '" + transactionType + "' WHERE " + column + " LIKE '%" + searchString + "%'"
+
+            // Prepare the statement
+            stmt, err := db.Prepare(query)
+            if err != nil {
+                panic(err)
+            }
+            defer stmt.Close()
+
+            // Execute the query
+            result, err := stmt.Exec()
+            if err != nil {
+                panic(err)
+            }
+
+            // Get the number of affected rows
+            affected, err := result.RowsAffected()
+            if err != nil {
+                panic(err)
+            }
+            fmt.Printf("Number of affected rows: %d\n", affected)
         }
     }
 
