@@ -62,21 +62,39 @@ func cleanDB() {
     fmt.Println("File deleted successfully!")
 }
 
-func generateSexe() {
+func generateSexe(transTyp TransactionType) {
     db, err := sql.Open("sqlite3", "./dev.db")
     if err != nil {
         log.Fatal(err)
     }
     defer db.Close()
 
-    values := []string{"Mijke", "Maud", "Resa"}
-    var column string = "name"
-    sexe := "women"
+    for column := range transTyp.SearchValues {
+        fmt.Println(column)
+        for _, value := range transTyp.SearchValues[column] {
+            // Build query
+            query := "UPDATE users SET sexe = '" + transTyp.Type + "' WHERE " + column + " LIKE '%" + value + "%'"
+            fmt.Println(query)
 
-    for _, value := range values {
-        _, err = db.Exec("UPDATE users SET sexe = '" + sexe + "' WHERE " + column + " LIKE (?)", value)
-        if err != nil {
-            log.Fatal(err)
+            // Prepare the statement
+            stmt, err := db.Prepare(query)
+            if err != nil {
+                panic(err)
+            }
+            defer stmt.Close()
+
+            // Execute the query
+            result, err := stmt.Exec()
+            if err != nil {
+                panic(err)
+            }
+
+            // Get the number of affected rows
+            affected, err := result.RowsAffected()
+            if err != nil {
+                panic(err)
+            }
+            fmt.Printf("Number of affected rows: %d\n", affected)
         }
     }
 
@@ -163,6 +181,11 @@ func foo() int {
     return 42
 }
 
+type TransactionType struct {
+    Type            string
+    SearchValues    map[string][]string
+}
+
 func main() {
   db, err := sql.Open("sqlite3", "./dev.db")
   if err != nil {
@@ -182,12 +205,31 @@ func main() {
 
   returnAge(18)
 
-  generateSexe()
+  transTypWomen := TransactionType{
+    Type: "women",
+    SearchValues: map[string][]string{
+        "name": []string{"Mijke", "Maud", "Resa"},
+    },
+  }
+
+  fmt.Println(transTypWomen)
+  fmt.Println(transTypWomen.Type)
+  fmt.Println(transTypWomen.SearchValues)
+  fmt.Println(transTypWomen.SearchValues["name"][0])
+  // Print keys of map
+  for key := range transTypWomen.SearchValues {
+    fmt.Println(key)
+  }
+
+
+  generateSexe(transTypWomen)
   returnWomen()
 
   printTable()
 
   cleanDB()
+
+
 
 //   loopOverMap()
 
