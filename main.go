@@ -15,7 +15,7 @@ import (
 
 var dbName string
 
-func importCsv(csvName string, db *sql.DB) error {
+func createTable(db *sql.DB) error {
 	// Create table
 	// Columns "bedrag" and "saldoNaBoeking" are defined as TEXT since they have a comma as seperator (a dot is needed for type REAL/float64).
 	// We will convert it to a float64 when we start doing calculations
@@ -39,7 +39,10 @@ func importCsv(csvName string, db *sql.DB) error {
 	if err != nil {
 		log.Fatalf("exec failed: %s", err)
 	}
+	return nil
+}
 
+func importCsv(csvName string, db *sql.DB) error {
 	// Read csv
 	f, err := os.Open(csvName)
 	if err != nil {
@@ -71,7 +74,7 @@ func importCsv(csvName string, db *sql.DB) error {
         //transactionType     := record[9] // extra column, not in csv
 
 		// Map csv columns to DB columns
-		stmt, err = db.Prepare("insert into expenses(boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType) values(?, ?, ?, ?, ?, ?, ?, ?, ?, 'unknown')")
+		stmt, err := db.Prepare("insert into expenses(boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType) values(?, ?, ?, ?, ?, ?, ?, ?, ?, 'unknown')")
 		if err != nil {
 			log.Fatalf("insert prepare failed: %s", err)
 		}
@@ -197,6 +200,11 @@ func main() {
         panic(err)
     }
     defer db.Close()
+
+    err = createTable(db)
+    if err != nil {
+        panic(err)
+    }
 
     err = importCsv("small-with-columns.csv", db)
     if err != nil {
