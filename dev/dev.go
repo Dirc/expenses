@@ -10,39 +10,25 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func createTable() {
-    db, err := sql.Open("sqlite3", "./dev.db")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer db.Close()
-
-    _, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
+func createTable(db *sql.DB) error {
+    _, err := db.Exec(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL,
         age INTEGER NOT NULL,
         sexe TEXT
     )`)
     if err != nil {
-        log.Fatal(err)
+        return fmt.Errorf("Error creating table: %v", err)
     }
-
-    fmt.Println("Table created successfully!")
+    return nil
 }
 
-func insertData(name string, age int) {
-    db, err := sql.Open("sqlite3", "./dev.db")
+func insertData(name string, age int, db *sql.DB) error {
+    _, err := db.Exec(`INSERT INTO users (name, age) VALUES (?, ?)`, name, age)
     if err != nil {
-        log.Fatal(err)
+        return fmt.Errorf("Error inserting data: %v", err)
     }
-    defer db.Close()
-
-    _, err = db.Exec(`INSERT INTO users (name, age) VALUES (?, ?)`, name, age)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    fmt.Println("Row inserted successfully!")
+    return nil
 }
 
 func returnAge(age int) {
@@ -173,14 +159,26 @@ func loopOverMap() {
     }
 }
 
+func foo() int {
+    return 42
+}
 
 func main() {
-  createTable()
+  db, err := sql.Open("sqlite3", "./dev.db")
+  if err != nil {
+      panic(err)
+  }
+  defer db.Close()
 
-  insertData("Mijke", 37)
-  insertData("Resa", 5)
-  insertData("Maud", 7)
-  insertData("Eric", 37)
+  err = createTable(db)
+  if err != nil {
+      panic(err)
+  }
+
+  insertData("Mijke", 37, db)
+  insertData("Resa", 5, db)
+  insertData("Maud", 7, db)
+  insertData("Eric", 37, db)
 
   returnAge(18)
 
