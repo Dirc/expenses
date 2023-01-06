@@ -15,25 +15,22 @@ import (
 
 var dbName string
 
-func importCsv(csvName string, dbName string) {
-    // 	var csvName string = "small-with-columns.csv"
-
-	// Initialise DB
-    // 	db := connectDB(dbName)
-	db, err := sql.Open("sqlite3", dbName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("ping failed: %s", err)
-	}
-
+func importCsv(csvName string, db *sql.DB) error {
 	// Create table
 	// Columns "bedrag" and "saldoNaBoeking" are defined as TEXT since they have a comma as seperator (a dot is needed for type REAL/float64).
 	// We will convert it to a float64 when we start doing calculations
-	stmt, err := db.Prepare("CREATE TABLE IF NOT EXISTS expenses (boekdatum TEXT, rekeningnummer TEXT, bedrag REAL, debetCredit TEXT, naamTegenrekening TEXT, tegenrekening TEXT, code TEXT, omschrijving TEXT, saldoNaBoeking REAL, transactionType TEXT)")
+	stmt, err := db.Prepare(`CREATE TABLE IF NOT EXISTS expenses (
+	    boekdatum TEXT,
+	    rekeningnummer TEXT,
+	    bedrag REAL,
+	    debetCredit TEXT,
+	    naamTegenrekening TEXT,
+	    tegenrekening TEXT,
+	    code TEXT,
+	    omschrijving TEXT,
+	    saldoNaBoeking REAL,
+	    transactionType TEXT
+	)`)
 	if err != nil {
 		log.Fatalf("prepare failed: %s", err)
 	}
@@ -85,23 +82,22 @@ func importCsv(csvName string, dbName string) {
 		}
 	}
     fmt.Printf("CSV file %s imported successfully as %s!\n", csvName, dbName)
+    return nil
 }
 
 func cleanDB(dbName string) {
     err := os.Remove(dbName)
     if err != nil {
-        log.Fatal(err)
+        if os.IsNotExist(err) {
+            fmt.Println("File does not exist")
+        } else {
+            panic(err)
+        }
     }
-
     fmt.Printf("File %s deleted successfully!\n", dbName)
 }
-func printTable(dbName string) {
-	db, err := sql.Open("sqlite3", dbName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
 
+func printTable(db *sql.DB) error {
     rows, err := db.Query("SELECT boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType FROM expenses")
     if err != nil {
         log.Fatal(err)
@@ -131,16 +127,12 @@ func printTable(dbName string) {
 
     if err := rows.Err(); err != nil {
         log.Fatal(err)
+        return fmt.Errorf("Error printing table: %v", err)
     }
+    return nil
 }
 
-func generateTransactionType(dbName string) {
-	db, err := sql.Open("sqlite3", dbName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
+func generateTransactionType(db *sql.DB) error {
     // Map per transactionType
     // - key: transactionType
     // - keys for all column
@@ -184,106 +176,43 @@ func generateTransactionType(dbName string) {
     }
 
     fmt.Println("Values inserted successfully!")
+    return nil
 }
 
 
 // ----- refactor ------
-
-func executeSql(sqlQuery string) {
-	var dbName string = "expenses.db"
-
-	// Initialise DB
-	db, err := sql.Open("sqlite3", dbName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("ping failed: %s", err)
-	}
-
-	stmt, err := db.Prepare(sqlQuery)
-	if err != nil {
-		log.Fatalf("prepare failed: %s", err)
-	}
-
-	_, err = stmt.Exec()
-	if err != nil {
-		log.Fatalf("exec failed: %s", err)
-	}
-}
-
-// func returnSqlResults(sqlQuery string) {
-func returnSqlResults() {
-	var dbName string = "expenses.db"
-
-	// Initialise DB
-	db, err := sql.Open("sqlite3", dbName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("ping failed: %s", err)
-	}
-
-// 	stmt, err := db.Prepare(sqlQuery)
-// 	if err != nil {
-// 		log.Fatalf("prepare failed: %s", err)
-// 	}
-//
-// 	response, err := stmt.Query()
-// 	if err != nil {
-// 		log.Fatalf("exec failed: %s", err)
-// 	}
-
-	rows, err := db.Query("select 'Naam tegenrekening' from expenses")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer rows.Close()
-
-    // Loop through the first result set.
-    for rows.Next() {
-        var name string
-        if err := rows.Scan(&name); err != nil {
-            log.Fatal(err)
-        }
-        fmt.Println("Naam: %s\n", name)
-    }
-
-    // Advance to next result set.
-//     rows.NextResultSet()
-
-    // Loop through the second result set.
-//     for rows.Next() {
-//         fmt.Println(rows)
-//     }
-
-    // Check for any error in either result set.
-    if err := rows.Err(); err != nil {
-        log.Fatal(err)
-    }
-// 	fmt.Println(response)
-}
 
 type transactionTypeTotal struct {
   transactionType string
   value float32
 }
 
-// func (transactionTypeTotal *transactionTypeTotal) getTotal(transactionType string) {
-//     value =
-// }
-
 func main() {
-  dbName = "expenses.db"
-  cleanDB(dbName)
-  importCsv("small-with-columns.csv", dbName)
-  generateTransactionType(dbName)
-  printTable(dbName)
+    dbName = "expenses.db"
+
+    cleanDB(dbName)
+
+    db, err := sql.Open("sqlite3", dbName)
+    if err != nil {
+        panic(err)
+    }
+    defer db.Close()
+
+    err = importCsv("small-with-columns.csv", db)
+    if err != nil {
+        panic(err)
+    }
+
+    err = generateTransactionType(db)
+    if err != nil {
+        panic(err)
+    }
+
+    err = printTable(db)
+    if err != nil {
+        panic(err)
+    }
+
 //   executeSql("select * from expenses")
 //   returnSql("select bedrag from expenses WHERE omschrijving LIKE '%PICNIC%'")
 //   returnSql("SELECT SUM(bedrag) FROM expenses WHERE debetCredit = 'Debet'")

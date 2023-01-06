@@ -56,6 +56,7 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 ## ToDo
 
 - [x] add column "transactionType" e.g. boodschappen, vakantie, vasteLasten, fun
+- [ ] create db connection in main and use db as input for other funcs. (as in dev.go createTable)
 - [ ] make generateTransactionType more general (map as input)
   - [x] general for loop sql
   - [ ] map as input
