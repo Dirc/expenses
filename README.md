@@ -59,7 +59,7 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 - [x] create db connection in main and use db as input for other funcs. (as in dev.go createTable)
 - [ ] make generateTransactionType more general (map as input)
   - [x] general for loop sql
-  - [ ] map as input
+  - [x] map as input
   - [ ] define multiple maps
     - store map in seperate table?
 - [ ] print total amount per transactionType

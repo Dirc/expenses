@@ -15,6 +15,11 @@ import (
 
 var dbName string
 
+type TransactionType struct {
+    Type            string
+    SearchValues    map[string][]string
+}
+
 func createTable(db *sql.DB) error {
 	// Create table
 	// Columns "bedrag" and "saldoNaBoeking" are defined as TEXT since they have a comma as seperator (a dot is needed for type REAL/float64).
@@ -135,26 +140,15 @@ func printTable(db *sql.DB) error {
     return nil
 }
 
-func generateTransactionType(db *sql.DB) error {
-    // Map per transactionType
-    // - key: transactionType
-    // - keys for all column
-    transactionTypeMap := make(map[string][]string)
-    transactionTypeMap["transactionType"] = []string{"Boodschappen"}
-    transactionTypeMap["naamTegenrekening"] = []string{"PICNIC BY BUCKAROO"}
-    transactionTypeMap["tegenrekening"] = []string{"nog geen tegenrekening"}
-    transactionTypeMap["omschrijving"] = []string{"Bakkerij Neplenbroek%", "ALBERT HEIJN%"}
-
-    transactionType := transactionTypeMap["transactionType"][0]
-    delete(transactionTypeMap, "transactionType")
+func generateTransactionType(db *sql.DB, transTyp TransactionType) error {
 
     // General sql update
-    for column, _ := range transactionTypeMap {
-        for _, searchString := range transactionTypeMap[column] {
-            fmt.Printf("Column: %s, Value: %s, TransactionType: %s\n", column, searchString, transactionType)
+    for column := range transTyp.SearchValues {
+        for _, searchString := range transTyp.SearchValues[column] {
+            fmt.Printf("Column: %s, Value: %s, TransactionType: %s\n", column, searchString, transTyp.Type)
 
             // Build query
-            query := "UPDATE expenses SET transactionType = '" + transactionType + "' WHERE " + column + " LIKE '%" + searchString + "%'"
+            query := "UPDATE expenses SET transactionType = '" + transTyp.Type + "' WHERE " + column + " LIKE '%" + searchString + "%'"
 
             // Prepare the statement
             stmt, err := db.Prepare(query)
@@ -193,6 +187,15 @@ type transactionTypeTotal struct {
 func main() {
     dbName = "expenses.db"
 
+    transTypBoodschappen := TransactionType{
+        Type: "boodschappen",
+        SearchValues: map[string][]string{
+            "naamTegenrekening": []string{"PICNIC BY BUCKAROO"},
+            "tegenrekening": []string{"nog geen tegenrekening"},
+            "omschrijving": []string{"Bakkerij Neplenbroek%", "ALBERT HEIJN%"},
+        },
+    }
+
     cleanDB(dbName)
 
     db, err := sql.Open("sqlite3", dbName)
@@ -211,7 +214,7 @@ func main() {
         panic(err)
     }
 
-    err = generateTransactionType(db)
+    err = generateTransactionType(db, transTypBoodschappen)
     if err != nil {
         panic(err)
     }
