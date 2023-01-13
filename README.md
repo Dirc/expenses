@@ -64,3 +64,4 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
     - store map in seperate table?
 - [ ] print total amount per transactionType
 - [ ] unit tests
+  - fix tests: check table columns

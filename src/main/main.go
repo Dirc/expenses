@@ -13,7 +13,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var dbName string
 
 type TransactionType struct {
     Type            string
@@ -89,7 +88,7 @@ func importCsv(csvName string, db *sql.DB) error {
 			log.Fatalf("insert failed(%s, %s, %s): %s", boekdatum, rekeningnummer, bedrag, err)
 		}
 	}
-    fmt.Printf("CSV file %s imported successfully as %s!\n", csvName, dbName)
+    fmt.Printf("CSV file %s imported successfully!\n", csvName)
     return nil
 }
 
@@ -176,16 +175,8 @@ func generateTransactionType(db *sql.DB, transTyp TransactionType) error {
     return nil
 }
 
-
-// ----- refactor ------
-
-type transactionTypeTotal struct {
-  transactionType string
-  value float32
-}
-
 func main() {
-    dbName = "expenses.db"
+    dbName := "expenses.db"
 
     transTypBoodschappen := TransactionType{
         Type: "boodschappen",
@@ -224,9 +215,4 @@ func main() {
         panic(err)
     }
 
-//   executeSql("select * from expenses")
-//   returnSql("select bedrag from expenses WHERE omschrijving LIKE '%PICNIC%'")
-//   returnSql("SELECT SUM(bedrag) FROM expenses WHERE debetCredit = 'Debet'")
-//   getDebet()
-//   returnSqlResults()
 }
