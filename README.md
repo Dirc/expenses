@@ -57,10 +57,10 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 
 - [x] add column "transactionType" e.g. boodschappen, vakantie, vasteLasten, fun
 - [x] create db connection in main and use db as input for other funcs. (as in dev.go createTable)
-- [ ] make generateTransactionType more general (map as input)
+- [x] make generateTransactionType more general
   - [x] general for loop sql
-  - [x] map as input
-  - [ ] define multiple maps
-    - store map in seperate table?
-- [ ] print total amount per transactionType
+  - [x] struct as input
 - [ ] unit tests
+- [ ] print total amount per transactionType
+- [ ] define multiple struct
+  - store struct in seperate table?

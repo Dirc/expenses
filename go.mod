@@ -1,4 +1,4 @@
-module importer
+module github.com/dirc/expenses
 
 go 1.19
 
