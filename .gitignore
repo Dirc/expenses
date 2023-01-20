@@ -1,2 +1,2 @@
-*.csv
-./expenses.db
+./*.csv
+./*.db
