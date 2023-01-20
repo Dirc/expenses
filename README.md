@@ -11,7 +11,7 @@ Import csv into sqlite DB.
 go mod init
 go mod tidy
 
-go run main.go
+go run *.go
 
 echo "select * from expenses;" | sqlite3 expenses.db
 
@@ -61,6 +61,7 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
   - [x] general for loop sql
   - [x] struct as input
 - [ ] unit tests
-- [ ] print total amount per transactionType
+- [x] print total amount per transactionType
+- [x] print pretty with padding
 - [ ] define multiple struct
   - store struct in seperate table?

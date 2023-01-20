@@ -46,7 +46,12 @@ func main() {
 
 
     // Print status
-    err = printTable(db)
+//     err = printTable(db)
+//     if err != nil {
+//         panic(err)
+//     }
+
+    err = transactionTypesTotal(db)
     if err != nil {
         panic(err)
     }
