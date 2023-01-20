@@ -55,6 +55,8 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 
 ## ToDo
 
+### MVP
+
 - [x] add column "transactionType" e.g. boodschappen, vakantie, vasteLasten, fun
 - [x] create db connection in main and use db as input for other funcs. (as in dev.go createTable)
 - [x] make generateTransactionType more general
@@ -63,5 +65,20 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 - [ ] unit tests
 - [x] print total amount per transactionType
 - [x] print pretty with padding
-- [ ] define multiple struct
-  - store struct in seperate table?
+- [ ] define multiple transaction structs
+- 
+- [ ] store struct in seperate table?
+  - [ ] method to add/rm search items
+
+- [ ] transactionTypesTotal:
+  - [ ] add time: "from" till "when" the data is captured
+  - [ ] add column for expenses per month
+- [ ] printUnknown: print table for all unknown
+
+- [ ] make importing csv more general
+  - input: csv, list of columns?
+
+### nice to haves
+
+- [ ] provide api with Gin
+
