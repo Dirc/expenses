@@ -13,7 +13,7 @@ go mod tidy
 
 go run *.go
 
-echo "select * from expenses;" | sqlite3 expenses.db
+go test *.go
 
 ```
 
