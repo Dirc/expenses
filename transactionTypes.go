@@ -172,3 +172,8 @@ func PrintTableTransactionType(db *sql.DB, transactionType string) error {
     }
     return nil
 }
+
+// For clearity, not really needed
+func PrintTable(db *sql.DB) error {
+    return PrintTableTransactionType(db, "")
+}

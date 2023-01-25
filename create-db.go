@@ -96,38 +96,3 @@ func cleanDB(dbName string) {
     }
     fmt.Printf("File %s deleted successfully!\n", dbName)
 }
-
-func printTable(db *sql.DB) error {
-    rows, err := db.Query("SELECT boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType FROM expenses")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer rows.Close()
-
-    // Newline before printing table
-    fmt.Printf("\n")
-
-    // Print table
-    for rows.Next() {
-        var boekdatum string
-        var rekeningnummer string
-        var bedrag string
-        var debetCredit string
-        var naamTegenrekening string
-        var tegenrekening string
-        var code string
-        var omschrijving string
-        var saldoNaBoeking string
-        var transactionType string
-        if err := rows.Scan(&boekdatum, &rekeningnummer, &bedrag, &debetCredit, &naamTegenrekening, &tegenrekening, &code, &omschrijving, &saldoNaBoeking, &transactionType); err != nil {
-            log.Fatal(err)
-        }
-        fmt.Printf("boekdatum: %s, rekeningnummer: %s, bedrag: %s, debetCredit: %s, naamTegenrekening: %s, tegenrekening: %s, code: %s, omschrijving: %s, saldoNaBoeking: %s, transactionType: %s\n", boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType)
-    }
-
-    if err := rows.Err(); err != nil {
-        log.Fatal(err)
-        return fmt.Errorf("Error printing table: %v", err)
-    }
-    return nil
-}

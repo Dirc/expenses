@@ -94,4 +94,9 @@ func main() {
     if err != nil {
         panic(err)
     }
+
+    err = PrintTable(db)
+    if err != nil {
+        panic(err)
+    }
 }
