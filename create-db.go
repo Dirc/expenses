@@ -84,15 +84,3 @@ func importCsv(csvName string, db *sql.DB) error {
     fmt.Printf("CSV file %s imported successfully!\n", csvName)
     return nil
 }
-
-func cleanDB(dbName string) {
-    err := os.Remove(dbName)
-    if err != nil {
-        if os.IsNotExist(err) {
-            fmt.Println("File does not exist")
-        } else {
-            panic(err)
-        }
-    }
-    fmt.Printf("File %s deleted successfully!\n", dbName)
-}

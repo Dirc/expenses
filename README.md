@@ -1,7 +1,7 @@
 
 # Expenses
 
-Order your bank expenses
+Give clarity in your bank expenses.
 
 ## Run
 
@@ -63,6 +63,9 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
   - [x] general for loop sql
   - [x] struct as input
 - [ ] unit tests
+  - [x] create-db
+  - [ ] transactionTypes
+  - [ ] utils?
 - [x] print total amount per transactionType
 - [x] print pretty with padding
 - [x] define multiple transaction structs
