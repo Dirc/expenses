@@ -115,3 +115,60 @@ func transactionTypesTotal(db *sql.DB) error {
 
     return nil
 }
+
+func OptionalParameters(foo int, bar ...string) {
+    fmt.Println(foo)
+    if len(bar) == 0 {
+        fmt.Println("No params")
+    } else {
+        for _, key := range bar {
+            fmt.Println(key)
+        }
+    }
+}
+
+func PrintTableTransactionType(db *sql.DB, transactionType string) error {
+
+    var query string
+    var rows *sql.Rows
+    var err error
+
+    if transactionType == "" {
+        query = "SELECT boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType FROM expenses;"
+        rows, err = db.Query(query)
+    } else {
+        query = "SELECT boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType FROM expenses WHERE transactionType = ?;"
+        rows, err = db.Query(query, transactionType)
+    }
+
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rows.Close()
+
+    // Newline before printing table
+    fmt.Printf("\n")
+
+    // Print table
+    for rows.Next() {
+        var boekdatum string
+        var rekeningnummer string
+        var bedrag string
+        var debetCredit string
+        var naamTegenrekening string
+        var tegenrekening string
+        var code string
+        var omschrijving string
+        var saldoNaBoeking string
+        if err := rows.Scan(&boekdatum, &rekeningnummer, &bedrag, &debetCredit, &naamTegenrekening, &tegenrekening, &code, &omschrijving, &saldoNaBoeking, &transactionType); err != nil {
+            log.Fatal(err)
+        }
+        fmt.Printf("boekdatum: %s, rekeningnummer: %s, bedrag: %s, debetCredit: %s, naamTegenrekening: %s, tegenrekening: %s, code: %s, omschrijving: %s, saldoNaBoeking: %s, transactionType: %s\n", boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType)
+    }
+
+    if err := rows.Err(); err != nil {
+        log.Fatal(err)
+        return fmt.Errorf("Error printing table: %v", err)
+    }
+    return nil
+}

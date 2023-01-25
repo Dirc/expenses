@@ -30,7 +30,7 @@ func main() {
     }
 
     // set transaction types
-    transTypBoodschappen := TransactionType{
+    boodschappen := TransactionType{
         Type: "boodschappen",
         SearchValues: map[string][]string{
             "naamTegenrekening": []string{"PICNIC BY BUCKAROO"},
@@ -38,12 +38,46 @@ func main() {
             "omschrijving": []string{"Bakkerij Neplenbroek%", "ALBERT HEIJN%"},
         },
     }
-
-    err = generateTransactionType(db, transTypBoodschappen)
+    err = generateTransactionType(db, boodschappen)
     if err != nil {
         panic(err)
     }
-
+    auto := TransactionType{
+        Type: "auto",
+        SearchValues: map[string][]string{
+            "naamTegenrekening": []string{"none"},
+            "tegenrekening": []string{"nog geen tegenrekening"},
+            "omschrijving": []string{"Parkmobile Benelux BV%", "CCV*Auto-Veer%"},
+        },
+    }
+    err = generateTransactionType(db, auto)
+    if err != nil {
+        panic(err)
+    }
+    spaarrek := TransactionType{
+        Type: "spaarrek",
+        SearchValues: map[string][]string{
+            "naamTegenrekening": []string{"none"},
+            "tegenrekening": []string{"TRIONL2U NL61TRIO2024035957"},
+            "omschrijving": []string{"none"},
+        },
+    }
+    err = generateTransactionType(db, spaarrek)
+    if err != nil {
+        panic(err)
+    }
+    gwl := TransactionType{
+        Type: "gwl",
+        SearchValues: map[string][]string{
+            "naamTegenrekening": []string{"ENECO SERVICES"},
+            "tegenrekening": []string{"none"},
+            "omschrijving": []string{"none"},
+        },
+    }
+    err = generateTransactionType(db, gwl)
+    if err != nil {
+        panic(err)
+    }
 
     // Print status
 //     err = printTable(db)
@@ -52,6 +86,11 @@ func main() {
 //     }
 
     err = transactionTypesTotal(db)
+    if err != nil {
+        panic(err)
+    }
+
+    err = PrintTableTransactionType(db, "unknown")
     if err != nil {
         panic(err)
     }
