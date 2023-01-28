@@ -70,13 +70,13 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 - [x] print pretty with padding
 - [x] define multiple transaction structs
 
-- [ ] store struct in seperate table?
-  - [ ] method to add/rm search items
-
 - [ ] transactionTypesTotal:
   - [ ] add time: "from" till "when" the data is captured
   - [ ] add column for expenses per month
 - [x] printUnknown: print table for all unknown
+
+- [ ] store struct in seperate table?
+  - [ ] method to add/rm search items
 
 - [ ] make importing csv more general
   - input: csv, list of columns?
