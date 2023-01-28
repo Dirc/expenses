@@ -1,33 +1,16 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	// init db
-	dbName := "expenses.db"
-	fmt.Println(dbName)
 
-	cleanDB(dbName)
-
-	db, err := sql.Open("sqlite3", dbName)
+	db, err := Init("test/resources/dummy.csv")
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
-
-	err = createTable(db)
-	if err != nil {
-		panic(err)
-	}
-
-	err = importCsv("test/resources/dummy.csv", db)
-	if err != nil {
-		panic(err)
-	}
 
 	// set transaction types
 	boodschappen := TransactionType{

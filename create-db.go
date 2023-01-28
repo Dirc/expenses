@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
-	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -59,16 +59,16 @@ func importCsv(csvName string, db *sql.DB) error {
 			break
 		}
 
-        boekdatum           := record[0]
-        rekeningnummer      := record[1]
-        bedrag              := record[2]
-        debetCredit         := record[3]
-        naamTegenrekening   := record[4]
-        tegenrekening       := record[5]
-        code                := record[6]
-        omschrijving        := record[7]
-        saldoNaBoeking      := record[8]
-        //transactionType     := record[9] // extra column, not in csv
+		boekdatum := record[0]
+		rekeningnummer := record[1]
+		bedrag := record[2]
+		debetCredit := record[3]
+		naamTegenrekening := record[4]
+		tegenrekening := record[5]
+		code := record[6]
+		omschrijving := record[7]
+		saldoNaBoeking := record[8]
+		//transactionType     := record[9] // extra column, not in csv
 
 		// Map csv columns to DB columns
 		stmt, err := db.Prepare("insert into expenses(boekdatum, rekeningnummer, bedrag, debetCredit, naamTegenrekening, tegenrekening, code, omschrijving, saldoNaBoeking, transactionType) values(?, ?, ?, ?, ?, ?, ?, ?, ?, 'unknown')")
@@ -81,6 +81,43 @@ func importCsv(csvName string, db *sql.DB) error {
 			log.Fatalf("insert failed(%s, %s, %s): %s", boekdatum, rekeningnummer, bedrag, err)
 		}
 	}
-    fmt.Printf("CSV file %s imported successfully!\n", csvName)
-    return nil
+	fmt.Printf("CSV file %s imported successfully!\n", csvName)
+	return nil
+}
+
+func cleanDB(dbName string) {
+	err := os.Remove(dbName)
+	if err != nil {
+		if os.IsNotExist(err) {
+			fmt.Println("File does not exist")
+		} else {
+			panic(err)
+		}
+	}
+	fmt.Printf("File %s deleted successfully!\n", dbName)
+}
+
+func Init(csvName string) (*sql.DB, error) {
+	// init db
+	dbName := "expenses.db"
+	fmt.Println(dbName)
+
+	cleanDB(dbName)
+
+	db, err := sql.Open("sqlite3", dbName)
+	if err != nil {
+		panic(err)
+	}
+
+	err = createTable(db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = importCsv(csvName, db)
+	if err != nil {
+		panic(err)
+	}
+
+	return db, err
 }
