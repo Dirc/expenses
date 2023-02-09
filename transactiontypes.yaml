@@ -1,0 +1,30 @@
+---
+TransactionTypes:
+  - type: Boodschappen
+    SearchValues:
+      naamTegenrekening: ["PANIC"]
+      tegenrekening: ["nog geen tegenrekening"]
+      omschrijving: ["Bakkerij%", "NICO%"]
+  - type: Auto
+    SearchValues:
+      naamTegenrekening: ["Parkeren%"]
+      tegenrekening: ["none"]
+      omschrijving: ["%Auto-Veer%"]
+  - type: Spaarrek
+    SearchValues:
+      naamTegenrekening: ["Dirc"]
+      tegenrekening: ["none"]
+      omschrijving: ["none"]
+  - type: GasWaterLicht
+    SearchValues:
+      naamTegenrekening: ["ENERGIE SERVICES"]
+      tegenrekening: ["none"]
+      omschrijving: ["none"]
+  - type: Overig
+    SearchValues:
+      naamTegenrekening: ["M Grupetto"]
+      tegenrekening: ["none"]
+      omschrijving: ["none"]
+
+
+
