@@ -17,36 +17,6 @@ go test *.go
 
 ```
 
-## SQL
-
-Print expenses table
-
-```shell
-echo "select * from expenses;" | sqlite3 expenses.db
-
-# All debet transactions
-echo "select * from expenses WHERE debetCredit = 'Debet';" | sqlite3 expenses.db
-
-# All transaction on 8th of the month
-echo "select * from expenses WHERE boekdatum LIKE '08-%';" | sqlite3 expenses.db
-
-# All Debet transaction on 8th of the month
-echo "select * from expenses WHERE boekdatum LIKE '08-%' AND debetCredit = 'Debet';" | sqlite3 expenses.db
-
-# Column names
-echo "PRAGMA table_info(expenses)" | sqlite3 expenses.db
-
-# Sum of transactions
-echo "SELECT SUM(bedrag) FROM expenses" | sqlite3 expenses.db
-
-# Sum of debet transactions
-echo "SELECT SUM(bedrag) FROM expenses WHERE debetCredit = 'Debet'" | sqlite3 expenses.db
-
-# Update transactionType based on naamTegenrekening
-echo "UPDATE expenses SET transactionType = 'booschappen' WHERE naamTegenrekening = 'PICNIC BY BUCKAROO';" | sqlite3 expenses.db 
-
-```
-
 ## Columns
 
 ```shell
@@ -65,10 +35,12 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 - [ ] unit tests
   - [x] create-db
   - [ ] transactionTypes
-  - [ ] utils?
 - [x] print total amount per transactionType
 - [x] print pretty with padding
 - [x] define multiple transaction structs
+- [ ] run as cli
+  - [ ] init
+  - [ ] load transactionTypes (from yaml?) 
 
 - [ ] transactionTypesTotal:
   - [ ] add time: "from" till "when" the data is captured

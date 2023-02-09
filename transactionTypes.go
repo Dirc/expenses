@@ -4,13 +4,44 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"log"
+	"os"
 	"strconv"
 )
 
 type TransactionType struct {
-	Type         string
-	SearchValues map[string][]string
+	Type         string              `yaml:"type"`
+	SearchValues map[string][]string `yaml:"SearchValues"`
+}
+
+type TransactionTypes struct {
+	TransactionTypes []TransactionType `yaml:"TransactionTypes"`
+}
+
+func readTransactionTypesFromYaml(config string) (TransactionTypes, error) {
+	file, err := os.Open(config)
+	if err != nil {
+		fmt.Printf("Error reading YAML file: %v", err)
+		return TransactionTypes{}, err
+	}
+	defer file.Close()
+
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Printf("Error reading contents of YAML file: %v", err)
+		return TransactionTypes{}, err
+	}
+
+	transactionTypes := TransactionTypes{}
+	err = yaml.Unmarshal(fileBytes, &transactionTypes)
+	if err != nil {
+		fmt.Println(err)
+		return TransactionTypes{}, err
+	}
+
+	return transactionTypes, nil
 }
 
 func generateTransactionType(db *sql.DB, transTyp TransactionType) error {
@@ -46,6 +77,19 @@ func generateTransactionType(db *sql.DB, transTyp TransactionType) error {
 	}
 
 	fmt.Println("Values inserted successfully!")
+	return nil
+}
+
+func generateAllTransactionTypes(configfile string, db *sql.DB) error {
+	t, err := readTransactionTypesFromYaml(configfile)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, transType := range t.TransactionTypes {
+		fmt.Println(transType.Type)
+		generateTransactionType(db, transType)
+	}
 	return nil
 }
 
