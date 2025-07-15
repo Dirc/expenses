@@ -56,4 +56,5 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 ### nice to haves
 
 - [ ] provide api with Gin
+- [ ] support duckdb as backend
 
