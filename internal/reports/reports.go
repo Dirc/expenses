@@ -9,9 +9,9 @@ import (
 	"github.com/dirc/expenses/internal/models"
 )
 
-// GenerateReport generates a report for the last N periods (months/years).
+// GeneratePeriodicReport generates a report for the last N periods (months/years).
 // durationStr: e.g., "3m" for 3 months, "4y" for 4 years
-func GenerateReport(
+func GeneratePeriodicReport(
 	transactions []models.Transaction,
 	durationStr string,
 ) (map[string]map[string]float64, error) {
@@ -65,13 +65,32 @@ func GenerateReport(
 	return report, nil
 }
 
-// PrintReport prints the report in a readable format.
-func PrintReport(report map[string]map[string]float64, title string) {
+// PrintPeriodicReport prints the report in a readable format.
+func PrintPeriodicReport(report map[string]map[string]float64, title string) {
 	fmt.Printf("\n=== %s ===\n", title)
 	for period, types := range report {
 		fmt.Printf("\nPeriod: %s\n", period)
 		for txType, amount := range types {
 			fmt.Printf("  %s: €%.2f\n", txType, amount)
 		}
+	}
+}
+
+// Filter and print transactions without a type
+func GenerateUntypedReport(transactions []models.Transaction) {
+	fmt.Println("Untyped Transactions:")
+
+	hasUntyped := false
+	for _, tx := range transactions {
+		if tx.TransactionType == "" {
+			hasUntyped = true
+			fmt.Printf("Boekdatum: %s, NaamTegenrekening: %s, Tegenrekening: %s, Omschrijving: %s\n",
+				tx.Boekdatum.Format("2006-01-02"), tx.NaamTegenrekening, tx.Tegenrekening, tx.Omschrijving)
+		}
+	}
+
+	// If no untyped transactions exist
+	if !hasUntyped {
+		fmt.Println("No untyped transactions found.")
 	}
 }

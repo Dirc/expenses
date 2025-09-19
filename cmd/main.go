@@ -30,15 +30,17 @@ func main() {
 	transactions = transform.EnrichTransactions(transactions, types)
 
 	// Generate and print reports
-	monthReport, err := reports.GenerateReport(transactions, "3m") // Last 3 months
+	monthReport, err := reports.GeneratePeriodicReport(transactions, "3m") // Last 3 months
 	if err != nil {
 		log.Fatalf("Failed to generate monthly report: %v", err)
 	}
-	yearReport, err := reports.GenerateReport(transactions, "4y") // Last 4 years
+	yearReport, err := reports.GeneratePeriodicReport(transactions, "4y") // Last 4 years
 	if err != nil {
 		log.Fatalf("Failed to generate yearly report: %v", err)
 	}
 
-	reports.PrintReport(monthReport, "Monthly Report (Last 3 Months)")
-	reports.PrintReport(yearReport, "Yearly Report (Last 4 Years)")
+	reports.PrintPeriodicReport(monthReport, "Monthly Report (Last 3 Months)")
+	reports.PrintPeriodicReport(yearReport, "Yearly Report (Last 4 Years)")
+
+	reports.GenerateUntypedReport(transactions)
 }

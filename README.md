@@ -13,11 +13,11 @@ go mod tidy
 
 go run cmd/main.go
 
-go test *.go
+go test ./... -v
 
 ```
 
-## Columns
+## CSV Columns
 
 ```shell
 Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	Code	Omschrijving	Saldo na boeking
@@ -34,13 +34,14 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 ### v2.1
 
 - [ ] Load to sqlite (or duckdb?)
-- [ ] report: all untyped transactions
+- [x] report: all untyped transactions
 
 ### v2.2*
 
 - [ ] incremental updates
 - [ ] CLI
 - [ ] UI
+- [ ] Variable csv columns
 
 ### MVP (old)
 
