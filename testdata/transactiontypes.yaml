@@ -4,12 +4,12 @@ TransactionTypes:
     SearchValues:
       naamTegenrekening: ["PANIC"]
       tegenrekening: ["nog geen tegenrekening"]
-      omschrijving: ["Bakkerij%", "NICO%"]
+      omschrijving: ["Bakkerij*", "NICO*"]
   - type: Auto
     SearchValues:
-      naamTegenrekening: ["Parkeren%"]
+      naamTegenrekening: ["Parkeren*"]
       tegenrekening: ["none"]
-      omschrijving: ["%Auto-Veer%"]
+      omschrijving: ["*Auto-Veer*"]
   - type: Spaarrek
     SearchValues:
       naamTegenrekening: ["Dirc"]
