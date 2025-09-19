@@ -11,9 +11,15 @@ Import csv into sqlite DB.
 go mod init
 go mod tidy
 
-go run cmd/main.go
-
 go test ./... -v
+
+go build -o expenses cmd/main.go
+
+./expenses \
+  --csv=testdata/transactions.csv \
+  --yaml=testdata/transactiontypes.yaml \
+  --period=3y
+
 
 ```
 
@@ -33,13 +39,13 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 
 ### v2.1
 
-- [ ] Load to sqlite (or duckdb?)
 - [x] report: all untyped transactions
+- [ ] CLI
 
 ### v2.2*
 
+- [ ] Load to sqlite (or duckdb?)
 - [ ] incremental updates
-- [ ] CLI
 - [ ] UI
 - [ ] Variable csv columns
 

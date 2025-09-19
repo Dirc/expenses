@@ -1,7 +1,10 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/dirc/expenses/internal/etl/extract"
 	"github.com/dirc/expenses/internal/etl/transform"
@@ -9,19 +12,28 @@ import (
 )
 
 func main() {
-	// Path to your CSV file
-	csvPath := "testdata/transactions.csv"
-	// Path to your YAML config
-	configPath := "testdata/transactiontypes.yaml"
+	// Define CLI flags
+	csvPath := flag.String("csv", "", "Path to the CSV file containing transactions")
+	yamlPath := flag.String("yaml", "", "Path to the YAML file containing transaction types")
+	reportPeriod := flag.String("period", "", "Report period (e.g., '3m' for 3 months, '4y' for 4 years)")
+
+	// Parse flags
+	flag.Parse()
+
+	// Validate required flags
+	if *csvPath == "" || *yamlPath == "" || *reportPeriod == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
 
 	// Extract transactions from CSV
-	transactions, err := extract.ReadCSV(csvPath)
+	transactions, err := extract.ReadCSV(*csvPath)
 	if err != nil {
 		log.Fatalf("Failed to read CSV: %v", err)
 	}
 
 	// Load transaction types from YAML
-	types, err := transform.LoadTransactionTypes(configPath)
+	types, err := transform.LoadTransactionTypes(*yamlPath)
 	if err != nil {
 		log.Fatalf("Failed to load transaction types: %v", err)
 	}
@@ -30,17 +42,12 @@ func main() {
 	transactions = transform.EnrichTransactions(transactions, types)
 
 	// Generate and print reports
-	monthReport, err := reports.GeneratePeriodicReport(transactions, "3m") // Last 3 months
+	report, err := reports.GeneratePeriodicReport(transactions, *reportPeriod)
 	if err != nil {
-		log.Fatalf("Failed to generate monthly report: %v", err)
-	}
-	yearReport, err := reports.GeneratePeriodicReport(transactions, "4y") // Last 4 years
-	if err != nil {
-		log.Fatalf("Failed to generate yearly report: %v", err)
+		log.Fatalf("Failed to generate report: %v", err)
 	}
 
-	reports.PrintPeriodicReport(monthReport, "Monthly Report (Last 3 Months)")
-	reports.PrintPeriodicReport(yearReport, "Yearly Report (Last 4 Years)")
-
+	// Print the report
+	reports.PrintPeriodicReport(report, fmt.Sprintf("Report for %s", *reportPeriod))
 	reports.GenerateUntypedReport(transactions)
 }
