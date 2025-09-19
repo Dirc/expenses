@@ -11,7 +11,7 @@ Import csv into sqlite DB.
 go mod init
 go mod tidy
 
-go run *.go
+go run cmd/main.go
 
 go test *.go
 
@@ -25,7 +25,24 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 
 ## ToDo
 
-### MVP
+### V2.0
+
+- [x] ETL project structure
+- [x] Extract, Transform + unit tests
+- [x] Reports: `3m` for 3 months, `2y` for 2 years
+
+### v2.1
+
+- [ ] Load to sqlite (or duckdb?)
+- [ ] report: all untyped transactions
+
+### v2.2*
+
+- [ ] incremental updates
+- [ ] CLI
+- [ ] UI
+
+### MVP (old)
 
 - [x] add column "transactionType" e.g. boodschappen, vakantie, vasteLasten, fun
 - [x] create db connection in main and use db as input for other funcs. (as in dev.go createTable)
@@ -53,7 +70,7 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 - [ ] make importing csv more general
   - input: csv, list of columns?
 
-### nice to haves
+#### nice to haves
 
 - [ ] provide api with Gin
 
