@@ -34,7 +34,7 @@ func TestMatchesSearchValues(t *testing.T) {
 		"omschrijving": {"Bakkerij*"},
 	}))
 	assert.False(t, matchesSearchValues(tx, map[string][]string{
-		"omschrijving": {"*Supermarkt*"},
+		"omschrijving": {"*Supermarkt*"}, //nolint:misspell
 	}))
 
 	// Test case insensitivity
@@ -85,25 +85,27 @@ func TestEnrichTransactions(t *testing.T) {
 func TestLoadTransactionTypes(t *testing.T) {
 	// Create a temporary YAML file for testing
 	yamlContent := `
-TransactionTypes:
+transactionTypes:
 - type: Boodschappen
-  SearchValues:
+  searchValues:
     naamTegenrekening: ["PANIC"]
     omschrijving: ["*Bakkerij*"]
 
 - type: Auto
-  SearchValues:
+  searchValues:
     omschrijving: ["*Auto-Veer*"]
     `
 
-	tmpFile, err := os.CreateTemp("", "test*.yaml")
+	tmpFile, err := os.CreateTemp(t.TempDir(), "test*.yaml")
 	assert.NoError(t, err)
+
 	defer os.Remove(tmpFile.Name())
 
 	_, err = tmpFile.WriteString(yamlContent)
 	assert.NoError(t, err)
 	err = tmpFile.Close()
-	assert.NoError(t, err)
+	// assert.NoError(t, err)
+	require.noError(t, err)
 
 	types, err := LoadTransactionTypes(tmpFile.Name())
 	assert.NoError(t, err)

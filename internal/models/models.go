@@ -1,7 +1,9 @@
+// Package models for all models.
 package models
 
 import "time"
 
+// Transaction of a bank account with added column: TransactionType.
 type Transaction struct {
 	Boekdatum         time.Time `csv:"Boekdatum"`
 	Rekeningnummer    string    `csv:"Rekeningnummer"`
@@ -15,11 +17,13 @@ type Transaction struct {
 	TransactionType   string    // Will be set during transform
 }
 
+// TransactionTypeConfig is a array of transactionTypes.
 type TransactionTypeConfig struct {
-	TransactionTypes []TransactionType `yaml:"TransactionTypes"`
+	TransactionTypes []TransactionType `yaml:"transactionTypes"`
 }
 
+// TransactionType has a name and one or more search values so it can be matched on a transaction column.
 type TransactionType struct {
 	Type         string              `yaml:"type"`
-	SearchValues map[string][]string `yaml:"SearchValues"`
+	SearchValues map[string][]string `yaml:"searchValues"`
 }

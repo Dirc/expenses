@@ -5,21 +5,29 @@ Give clarity in your bank expenses.
 
 ## Run
 
-Import csv into sqlite DB.
+Generate report from csv
 
 ```shell
-go mod init
-go mod tidy
-
-go test ./... -v
-
-go build -o expenses cmd/main.go
 
 ./expenses \
   --csv=testdata/transactions.csv \
   --yaml=testdata/transactiontypes.yaml \
   --period=3y
 
+
+```
+
+## Development setup
+
+```shell
+
+go mod init
+go mod tidy
+
+go test ./... -v
+golangci-lint run # Install golangci-lint from https://golangci-lint.run/usage/install
+
+go build -o expenses cmd/main.go
 
 ```
 
@@ -41,6 +49,7 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 
 - [x] report: all untyped transactions
 - [ ] CLI
+- [ ] linting
 
 ### v2.2*
 

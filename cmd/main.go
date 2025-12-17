@@ -1,8 +1,8 @@
+// Package main creates the CLI.
 package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 
@@ -48,6 +48,6 @@ func main() {
 	}
 
 	// Print the report
-	reports.PrintPeriodicReport(report, fmt.Sprintf("Report for %s", *reportPeriod))
+	reports.PrintPeriodicReport(report, log.Printf("Report for %s", reportPeriod))
 	reports.GenerateUntypedReport(transactions)
 }

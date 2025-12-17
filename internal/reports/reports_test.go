@@ -1,7 +1,6 @@
 package reports
 
 import (
-	"bytes"
 	"testing"
 	"time"
 
@@ -43,10 +42,11 @@ func TestGenerateReport(t *testing.T) {
 		// Check amounts
 		for period, types := range report {
 			if period == now.AddDate(0, -1, 0).Format("2006-01") {
-				assert.Equal(t, 100.00, types["Boodschappen"])
+				assert.InEpsilon(t, 100.00, types["Boodschappen"], 0.001)
 			}
+
 			if period == now.AddDate(0, 0, 0).Format("2006-01") {
-				assert.Equal(t, 400.00, types["Untyped"])
+				assert.InEpsilon(t, 400.00, types["Untyped"], 0.001)
 			}
 		}
 	})
@@ -59,9 +59,9 @@ func TestGenerateReport(t *testing.T) {
 		// Check amounts
 		for period, types := range report {
 			if period == now.Format("2006") {
-				assert.Equal(t, 400.00, types["Boodschappen"])
-				assert.Equal(t, 200.00, types["Auto"])
-				assert.Equal(t, 400.00, types["Untyped"])
+				assert.InEpsilon(t, 400.00, types["Boodschappen"], 0.001)
+				assert.InEpsilon(t, 200.00, types["Auto"], 0.001)
+				assert.InEpsilon(t, 400.00, types["Untyped"], 0.001)
 			}
 		}
 	})

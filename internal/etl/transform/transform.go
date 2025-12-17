@@ -1,3 +1,4 @@
+// Package transform enriches data.
 package transform
 
 import (
@@ -8,13 +9,18 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// LoadTransactionTypes loads yaml file with transactiontypes.
 func LoadTransactionTypes(configPath string) ([]models.TransactionType, error) {
+	// if !isSafePath(configPath) {
+	// 	return fmt.Errorf("invalid file path: %s", configPath)
+	// }
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, err
 	}
 
 	var config models.TransactionTypeConfig
+
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
 		return nil, err
@@ -23,21 +29,25 @@ func LoadTransactionTypes(configPath string) ([]models.TransactionType, error) {
 	return config.TransactionTypes, nil
 }
 
+// EnrichTransactions add transaction types for each transaction.
 func EnrichTransactions(transactions []models.Transaction, types []models.TransactionType) []models.Transaction {
 	for i, tx := range transactions {
 		for _, tt := range types {
 			if matchesSearchValues(tx, tt.SearchValues) {
 				transactions[i].TransactionType = tt.Type
+
 				break
 			}
 		}
 	}
+
 	return transactions
 }
 
 func matchesSearchValues(tx models.Transaction, searchValues map[string][]string) bool {
 	for field, patterns := range searchValues {
 		var value string
+
 		switch field {
 		case "naamTegenrekening":
 			value = tx.NaamTegenrekening
@@ -74,5 +84,6 @@ func matchesSearchValues(tx models.Transaction, searchValues map[string][]string
 			}
 		}
 	}
+
 	return false
 }

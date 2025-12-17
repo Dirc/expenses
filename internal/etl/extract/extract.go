@@ -1,7 +1,9 @@
+// Package extract extracts data into memory.
 package extract
 
 import (
 	"encoding/csv"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -10,15 +12,24 @@ import (
 	"github.com/dirc/expenses/internal/models"
 )
 
+// ReadCSV read csv file containing transactions.
 func ReadCSV(filePath string) ([]models.Transaction, error) {
+	// if !isSafePath(filePath) {
+	// 	return fmt.Errorf("invalid file path: %s", filePath)
+	// }
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("Failed to close file: %v", err)
+		}
+	}()
 
 	reader := csv.NewReader(file)
-	reader.Comma = ',' // CSV is comma-separated
+	reader.Comma = ','
 
 	// Read and discard header
 	_, err = reader.Read()
@@ -27,6 +38,7 @@ func ReadCSV(filePath string) ([]models.Transaction, error) {
 	}
 
 	var transactions []models.Transaction
+
 	for {
 		record, err := reader.Read()
 		if err != nil {
