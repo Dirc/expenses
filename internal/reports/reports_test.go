@@ -1,7 +1,6 @@
 package reports
 
 import (
-	"bytes"
 	"testing"
 	"time"
 

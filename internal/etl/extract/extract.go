@@ -34,10 +34,7 @@ func ReadCSV(filePath string) ([]models.Transaction, error) {
 		}
 
 		// Parse Bedrag (replace comma with dot for float parsing)
-		bedrag, err := strconv.ParseFloat(
-			strings.ReplaceAll(record[2], ",", "."),
-			64,
-		)
+		bedrag, err := convertAmountToFloat(record[2])
 		if err != nil {
 			return nil, err
 		}
@@ -49,10 +46,7 @@ func ReadCSV(filePath string) ([]models.Transaction, error) {
 		}
 
 		// Parse SaldoNaBoeking (replace comma with dot for float parsing)
-		saldo, err := strconv.ParseFloat(
-			strings.ReplaceAll(record[8], ",", "."),
-			64,
-		)
+		saldo, err := convertAmountToFloat(record[8])
 		if err != nil {
 			return nil, err
 		}
@@ -73,4 +67,10 @@ func ReadCSV(filePath string) ([]models.Transaction, error) {
 	}
 
 	return transactions, nil
+}
+
+func convertAmountToFloat(amount string) (float64, error) {
+	amountNoDots := strings.ReplaceAll(amount, ".", "")
+	amountNoComma := strings.ReplaceAll(amountNoDots, ",", ".")
+	return strconv.ParseFloat(amountNoComma, 64)
 }
