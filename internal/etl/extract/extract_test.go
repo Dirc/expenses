@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadCSV(t *testing.T) {
@@ -15,19 +16,19 @@ func TestReadCSV(t *testing.T) {
 "08-12-2022","NL99TRIO0123456789","12,80","Debet","","","XS","Bakkerij A","81,15"`
 
 	tmpFile, err := os.CreateTemp(t.TempDir(), "test*.csv")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	// require.noError(t, err)
 
 	defer os.Remove(tmpFile.Name())
 
 	_, err = tmpFile.WriteString(csvContent)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = tmpFile.Close()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Call the function
 	transactions, err := ReadCSV(tmpFile.Name())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Assertions
 	assert.Len(t, transactions, 2)

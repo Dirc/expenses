@@ -14,10 +14,7 @@ import (
 
 // ReadCSV read csv file containing transactions.
 func ReadCSV(filePath string) ([]models.Transaction, error) {
-	// if !isSafePath(filePath) {
-	// 	return fmt.Errorf("invalid file path: %s", filePath)
-	// }
-	file, err := os.Open(filePath)
+	file, err := os.Open(filePath) // #nosec G304
 	if err != nil {
 		return nil, err
 	}

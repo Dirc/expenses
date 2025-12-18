@@ -94,8 +94,14 @@ func GenerateUntypedReport(transactions []models.Transaction) {
 	for _, tx := range transactions {
 		if tx.TransactionType == "" {
 			hasUntyped = true
-			fmt.Printf("Boekdatum: %s, NaamTegenrekening: %s, Tegenrekening: %s, Omschrijving: %s\n",
-				tx.Boekdatum.Format("2006-01-02"), tx.NaamTegenrekening, tx.Tegenrekening, tx.Omschrijving)
+
+			fmt.Printf(
+				"Boekdatum: %s, NaamTegenrekening: %s, "+
+					"Tegenrekening: %s, Omschrijving: %s\n",
+				tx.Boekdatum.Format("2006-01-02"),
+				tx.NaamTegenrekening,
+				tx.Tegenrekening,
+				tx.Omschrijving)
 		}
 	}
 

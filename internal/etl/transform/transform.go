@@ -11,10 +11,7 @@ import (
 
 // LoadTransactionTypes loads yaml file with transactiontypes.
 func LoadTransactionTypes(configPath string) ([]models.TransactionType, error) {
-	// if !isSafePath(configPath) {
-	// 	return fmt.Errorf("invalid file path: %s", configPath)
-	// }
-	data, err := os.ReadFile(configPath)
+	data, err := os.ReadFile(configPath) // #nosec G304
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +27,10 @@ func LoadTransactionTypes(configPath string) ([]models.TransactionType, error) {
 }
 
 // EnrichTransactions add transaction types for each transaction.
-func EnrichTransactions(transactions []models.Transaction, types []models.TransactionType) []models.Transaction {
+func EnrichTransactions(
+	transactions []models.Transaction,
+	types []models.TransactionType,
+) []models.Transaction {
 	for i, tx := range transactions {
 		for _, tt := range types {
 			if matchesSearchValues(tx, tt.SearchValues) {
@@ -60,23 +60,27 @@ func matchesSearchValues(tx models.Transaction, searchValues map[string][]string
 		}
 
 		for _, pattern := range patterns {
+			upperValue := strings.ToUpper(value)
+
 			// Handle wildcards
-			if strings.HasPrefix(pattern, "*") && strings.HasSuffix(pattern, "*") {
+			switch {
+			case strings.HasPrefix(pattern, "*") && strings.HasSuffix(pattern, "*"):
 				// Match any substring
-				if strings.Contains(strings.ToUpper(value), strings.ToUpper(strings.Trim(pattern, "*"))) {
+				upperPattern := strings.ToUpper(strings.Trim(pattern, "*"))
+				if strings.Contains(upperValue, upperPattern) {
 					return true
 				}
-			} else if strings.HasPrefix(pattern, "*") {
+			case strings.HasPrefix(pattern, "*"):
 				// Match suffix
-				if strings.HasSuffix(strings.ToUpper(value), strings.ToUpper(strings.TrimPrefix(pattern, "*"))) {
+				if strings.HasSuffix(upperValue, strings.ToUpper(strings.TrimPrefix(pattern, "*"))) {
 					return true
 				}
-			} else if strings.HasSuffix(pattern, "*") {
+			case strings.HasSuffix(pattern, "*"):
 				// Match prefix
-				if strings.HasPrefix(strings.ToUpper(value), strings.ToUpper(strings.TrimSuffix(pattern, "*"))) {
+				if strings.HasPrefix(upperValue, strings.ToUpper(strings.TrimSuffix(pattern, "*"))) {
 					return true
 				}
-			} else {
+			default:
 				// Exact match
 				if strings.EqualFold(value, pattern) {
 					return true

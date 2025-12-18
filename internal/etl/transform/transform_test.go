@@ -6,6 +6,7 @@ import (
 
 	"github.com/dirc/expenses/internal/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMatchesSearchValues(t *testing.T) {
@@ -97,18 +98,17 @@ transactionTypes:
     `
 
 	tmpFile, err := os.CreateTemp(t.TempDir(), "test*.yaml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	defer os.Remove(tmpFile.Name())
 
 	_, err = tmpFile.WriteString(yamlContent)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = tmpFile.Close()
-	// assert.NoError(t, err)
-	require.noError(t, err)
+	require.NoError(t, err)
 
 	types, err := LoadTransactionTypes(tmpFile.Name())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, types, 2)
 	assert.Equal(t, "Boodschappen", types[0].Type)
 	assert.Equal(t, "Auto", types[1].Type)

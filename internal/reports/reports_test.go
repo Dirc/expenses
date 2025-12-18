@@ -6,6 +6,7 @@ import (
 
 	"github.com/dirc/expenses/internal/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGenerateReport(t *testing.T) {
@@ -36,7 +37,7 @@ func TestGenerateReport(t *testing.T) {
 
 	t.Run("Monthly Report", func(t *testing.T) {
 		report, err := GeneratePeriodicReport(transactions, "3m")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, report, 3) // Only 3 periods within last 3 months
 
 		// Check amounts
@@ -53,7 +54,7 @@ func TestGenerateReport(t *testing.T) {
 
 	t.Run("Yearly Report", func(t *testing.T) {
 		report, err := GeneratePeriodicReport(transactions, "1y")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, report, 1) // All transactions within last year
 
 		// Check amounts
@@ -68,13 +69,13 @@ func TestGenerateReport(t *testing.T) {
 
 	t.Run("Invalid Duration", func(t *testing.T) {
 		_, err := GeneratePeriodicReport(transactions, "3x")
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "invalid duration format")
 	})
 
 	t.Run("Empty Transactions", func(t *testing.T) {
 		report, err := GeneratePeriodicReport([]models.Transaction{}, "3m")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Empty(t, report)
 	})
 }

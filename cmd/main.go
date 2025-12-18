@@ -13,9 +13,21 @@ import (
 
 func main() {
 	// Define CLI flags
-	csvPath := flag.String("csv", "", "Path to the CSV file containing transactions")
-	yamlPath := flag.String("yaml", "", "Path to the YAML file containing transaction types")
-	reportPeriod := flag.String("period", "", "Report period (e.g., '3m' for 3 months, '4y' for 4 years)")
+	csvPath := flag.String(
+		"csv",
+		"",
+		"Path to the CSV file containing transactions",
+	)
+	yamlPath := flag.String(
+		"yaml",
+		"",
+		"Path to the YAML file containing transaction types",
+	)
+	reportPeriod := flag.String(
+		"period",
+		"",
+		"Report period (e.g., '3m' for 3 months, '4y' for 4 years)",
+	)
 
 	// Parse flags
 	flag.Parse()
@@ -48,6 +60,6 @@ func main() {
 	}
 
 	// Print the report
-	reports.PrintPeriodicReport(report, log.Printf("Report for %s", reportPeriod))
+	reports.PrintPeriodicReport(report, "Report for "+*reportPeriod)
 	reports.GenerateUntypedReport(transactions)
 }
