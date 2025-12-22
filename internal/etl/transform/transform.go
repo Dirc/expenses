@@ -62,32 +62,32 @@ func matchesSearchValues(tx models.Transaction, searchValues map[string][]string
 		for _, pattern := range patterns {
 			upperValue := strings.ToUpper(value)
 
-			// Handle wildcards
-			switch {
-			case strings.HasPrefix(pattern, "*") && strings.HasSuffix(pattern, "*"):
-				// Match any substring
-				upperPattern := strings.ToUpper(strings.Trim(pattern, "*"))
-				if strings.Contains(upperValue, upperPattern) {
-					return true
-				}
-			case strings.HasPrefix(pattern, "*"):
-				// Match suffix
-				if strings.HasSuffix(upperValue, strings.ToUpper(strings.TrimPrefix(pattern, "*"))) {
-					return true
-				}
-			case strings.HasSuffix(pattern, "*"):
-				// Match prefix
-				if strings.HasPrefix(upperValue, strings.ToUpper(strings.TrimSuffix(pattern, "*"))) {
-					return true
-				}
-			default:
-				// Exact match
-				if strings.EqualFold(value, pattern) {
-					return true
-				}
+			if matchPattern(upperValue, pattern) {
+				return true
 			}
 		}
 	}
 
 	return false
+}
+
+func matchPattern(upperValue, pattern string) bool {
+	upperPattern := strings.ToUpper(pattern)
+
+	switch {
+	case strings.HasPrefix(pattern, "*") && strings.HasSuffix(pattern, "*"):
+		// Match any substring
+		trimmed := strings.Trim(upperPattern, "*")
+
+		return strings.Contains(upperValue, trimmed)
+	case strings.HasPrefix(pattern, "*"):
+		// Match suffix
+		return strings.HasSuffix(upperValue, strings.TrimPrefix(upperPattern, "*"))
+	case strings.HasSuffix(pattern, "*"):
+		// Match prefix
+		return strings.HasPrefix(upperValue, strings.TrimSuffix(upperPattern, "*"))
+	default:
+		// Exact match
+		return strings.EqualFold(upperValue, pattern)
+	}
 }
