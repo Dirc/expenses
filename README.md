@@ -27,7 +27,7 @@ go mod tidy
 go test ./... -v
 golangci-lint run # Install golangci-lint from https://golangci-lint.run/usage/install
 
-go build -o expenses cmd/main.go
+go build -ldflags="-X 'main.Version=$(git describe --tags --always)'" -o expenses cmd/main.go
 
 ```
 
@@ -48,8 +48,8 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 ### v2.1
 
 - [x] report: all untyped transactions
-- [ ] CLI
-- [ ] linting
+- [x] CLI
+- [x] linting
 
 ### v2.2*
 
