@@ -1,3 +1,4 @@
+// Package transform enriches data.
 package transform
 
 import (
@@ -8,13 +9,15 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// LoadTransactionTypes loads yaml file with transactiontypes.
 func LoadTransactionTypes(configPath string) ([]models.TransactionType, error) {
-	data, err := os.ReadFile(configPath)
+	data, err := os.ReadFile(configPath) // #nosec G304
 	if err != nil {
 		return nil, err
 	}
 
 	var config models.TransactionTypeConfig
+
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
 		return nil, err
@@ -23,21 +26,28 @@ func LoadTransactionTypes(configPath string) ([]models.TransactionType, error) {
 	return config.TransactionTypes, nil
 }
 
-func EnrichTransactions(transactions []models.Transaction, types []models.TransactionType) []models.Transaction {
+// EnrichTransactions add transaction types for each transaction.
+func EnrichTransactions(
+	transactions []models.Transaction,
+	types []models.TransactionType,
+) []models.Transaction {
 	for i, tx := range transactions {
 		for _, tt := range types {
 			if matchesSearchValues(tx, tt.SearchValues) {
 				transactions[i].TransactionType = tt.Type
+
 				break
 			}
 		}
 	}
+
 	return transactions
 }
 
 func matchesSearchValues(tx models.Transaction, searchValues map[string][]string) bool {
 	for field, patterns := range searchValues {
 		var value string
+
 		switch field {
 		case "naamTegenrekening":
 			value = tx.NaamTegenrekening
@@ -50,29 +60,34 @@ func matchesSearchValues(tx models.Transaction, searchValues map[string][]string
 		}
 
 		for _, pattern := range patterns {
-			// Handle wildcards
-			if strings.HasPrefix(pattern, "*") && strings.HasSuffix(pattern, "*") {
-				// Match any substring
-				if strings.Contains(strings.ToUpper(value), strings.ToUpper(strings.Trim(pattern, "*"))) {
-					return true
-				}
-			} else if strings.HasPrefix(pattern, "*") {
-				// Match suffix
-				if strings.HasSuffix(strings.ToUpper(value), strings.ToUpper(strings.TrimPrefix(pattern, "*"))) {
-					return true
-				}
-			} else if strings.HasSuffix(pattern, "*") {
-				// Match prefix
-				if strings.HasPrefix(strings.ToUpper(value), strings.ToUpper(strings.TrimSuffix(pattern, "*"))) {
-					return true
-				}
-			} else {
-				// Exact match
-				if strings.EqualFold(value, pattern) {
-					return true
-				}
+			upperValue := strings.ToUpper(value)
+
+			if matchPattern(upperValue, pattern) {
+				return true
 			}
 		}
 	}
+
 	return false
+}
+
+func matchPattern(upperValue, pattern string) bool {
+	upperPattern := strings.ToUpper(pattern)
+
+	switch {
+	case strings.HasPrefix(pattern, "*") && strings.HasSuffix(pattern, "*"):
+		// Match any substring
+		trimmed := strings.Trim(upperPattern, "*")
+
+		return strings.Contains(upperValue, trimmed)
+	case strings.HasPrefix(pattern, "*"):
+		// Match suffix
+		return strings.HasSuffix(upperValue, strings.TrimPrefix(upperPattern, "*"))
+	case strings.HasSuffix(pattern, "*"):
+		// Match prefix
+		return strings.HasPrefix(upperValue, strings.TrimSuffix(upperPattern, "*"))
+	default:
+		// Exact match
+		return strings.EqualFold(upperValue, pattern)
+	}
 }

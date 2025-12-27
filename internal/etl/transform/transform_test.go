@@ -6,6 +6,7 @@ import (
 
 	"github.com/dirc/expenses/internal/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMatchesSearchValues(t *testing.T) {
@@ -34,7 +35,7 @@ func TestMatchesSearchValues(t *testing.T) {
 		"omschrijving": {"Bakkerij*"},
 	}))
 	assert.False(t, matchesSearchValues(tx, map[string][]string{
-		"omschrijving": {"*Supermarkt*"},
+		"omschrijving": {"*Supermarkt*"}, //nolint:misspell
 	}))
 
 	// Test case insensitivity
@@ -85,28 +86,29 @@ func TestEnrichTransactions(t *testing.T) {
 func TestLoadTransactionTypes(t *testing.T) {
 	// Create a temporary YAML file for testing
 	yamlContent := `
-TransactionTypes:
+transactionTypes:
 - type: Boodschappen
-  SearchValues:
+  searchValues:
     naamTegenrekening: ["PANIC"]
     omschrijving: ["*Bakkerij*"]
 
 - type: Auto
-  SearchValues:
+  searchValues:
     omschrijving: ["*Auto-Veer*"]
     `
 
-	tmpFile, err := os.CreateTemp("", "test*.yaml")
-	assert.NoError(t, err)
+	tmpFile, err := os.CreateTemp(t.TempDir(), "test*.yaml")
+	require.NoError(t, err)
+
 	defer os.Remove(tmpFile.Name())
 
 	_, err = tmpFile.WriteString(yamlContent)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = tmpFile.Close()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	types, err := LoadTransactionTypes(tmpFile.Name())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, types, 2)
 	assert.Equal(t, "Boodschappen", types[0].Type)
 	assert.Equal(t, "Auto", types[1].Type)
