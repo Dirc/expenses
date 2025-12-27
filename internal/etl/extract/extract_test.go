@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadCSV(t *testing.T) {
@@ -14,34 +15,35 @@ func TestReadCSV(t *testing.T) {
 "07-12-2022","NL99TRIO0123456789","58,08","Debet","","","XS","CCV*Auto-Veer \DIRC","93,95"
 "08-12-2022","NL99TRIO0123456789","12,80","Debet","","","XS","Bakkerij A","1.281,15"`
 
-	tmpFile, err := os.CreateTemp("", "test*.csv")
-	assert.NoError(t, err)
+	tmpFile, err := os.CreateTemp(t.TempDir(), "test*.csv")
+	require.NoError(t, err)
+
 	defer os.Remove(tmpFile.Name())
 
 	_, err = tmpFile.WriteString(csvContent)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = tmpFile.Close()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Call the function
 	transactions, err := ReadCSV(tmpFile.Name())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Assertions
 	assert.Len(t, transactions, 2)
 
 	// Check first transaction
 	assert.Equal(t, "NL99TRIO0123456789", transactions[0].Rekeningnummer)
-	assert.Equal(t, 58.08, transactions[0].Bedrag)
+	assert.InEpsilon(t, 58.08, transactions[0].Bedrag, 0.001)
 	assert.Equal(t, "Debet", transactions[0].DebetCredit)
 	assert.Equal(t, "CCV*Auto-Veer \\DIRC", transactions[0].Omschrijving)
-	assert.Equal(t, 93.95, transactions[0].SaldoNaBoeking)
+	assert.InEpsilon(t, 93.95, transactions[0].SaldoNaBoeking, 0.001)
 
 	// Check second transaction
 	assert.Equal(t, "NL99TRIO0123456789", transactions[1].Rekeningnummer)
-	assert.Equal(t, 12.80, transactions[1].Bedrag)
+	assert.InEpsilon(t, 12.80, transactions[1].Bedrag, 0.001)
 	assert.Equal(t, "Bakkerij A", transactions[1].Omschrijving)
-	assert.Equal(t, 1281.15, transactions[1].SaldoNaBoeking)
+	assert.InEpsilon(t, 1281.15, transactions[1].SaldoNaBoeking, 0.001)
 
 	// Check date parsing
 	expectedDate, _ := time.Parse("02-01-2006", "07-12-2022")
@@ -55,7 +57,7 @@ func TestConvertAmountToFloat(t *testing.T) {
 		expected float64 // Expected float64 value
 		wantErr  bool    // Whether an error is expected
 	}{
-		{"1.518,01", 1518.01, false},        // European format with dots as thousand separators and comma as decimal
+		{"1.518,01", 1518.01, false},        //nolint:golines // European format with dots as thousand separators and comma as decimal
 		{"1518,01", 1518.01, false},         // European-style without thousand separator
 		{"1.000,00", 1000.00, false},        // European format for 1000.00
 		{"0,99", 0.99, false},               // European format small decimal
@@ -71,9 +73,9 @@ func TestConvertAmountToFloat(t *testing.T) {
 
 		// Verify output
 		if tt.wantErr {
-			assert.Error(t, err, "expected an error for input: '%s'", tt.input)
+			require.Error(t, err, "expected an error for input: '%s'", tt.input)
 		} else {
-			assert.NoError(t, err, "did not expect an error for input: '%s'", tt.input)
+			require.NoError(t, err, "did not expect an error for input: '%s'", tt.input)
 			assert.InEpsilon(t, tt.expected, result, 0.0001, "unexpected result for input: '%s'", tt.input) // Tolerance for float comparison
 		}
 	}

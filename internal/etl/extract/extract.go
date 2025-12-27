@@ -81,5 +81,6 @@ func ReadCSV(filePath string) ([]models.Transaction, error) {
 func convertAmountToFloat(amount string) (float64, error) {
 	amountNoDots := strings.ReplaceAll(amount, ".", "")
 	amountNoComma := strings.ReplaceAll(amountNoDots, ",", ".")
+
 	return strconv.ParseFloat(amountNoComma, 64)
 }
