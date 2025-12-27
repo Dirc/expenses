@@ -1,6 +1,8 @@
+// Package reports generate reports of all transactions.
 package reports
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -10,7 +12,7 @@ import (
 )
 
 // GeneratePeriodicReport generates a report for the last N periods (months/years).
-// durationStr: e.g., "3m" for 3 months, "4y" for 4 years
+// durationStr: e.g., "3m" for 3 months, "4y" for 4 years.
 func GeneratePeriodicReport(
 	transactions []models.Transaction,
 	durationStr string,
@@ -18,13 +20,15 @@ func GeneratePeriodicReport(
 	// Parse duration string (e.g., "3m" or "4y")
 	duration, err := strconv.Atoi(durationStr[:len(durationStr)-1])
 	if err != nil {
-		return nil, fmt.Errorf("invalid duration: %v", err)
+		return nil, fmt.Errorf("invalid duration: %w", err)
 	}
 
 	isMonth := strings.HasSuffix(durationStr, "m")
+
 	isYear := strings.HasSuffix(durationStr, "y")
+
 	if !isMonth && !isYear {
-		return nil, fmt.Errorf("invalid duration format, use e.g. '3m' or '4y'")
+		return nil, errors.New("invalid duration format: use e.g. '3m' or '4y'")
 	}
 
 	now := time.Now()
@@ -51,7 +55,9 @@ func GeneratePeriodicReport(
 		} else {
 			periodKey = tx.Boekdatum.Format("2006")
 		}
+
 		txType := tx.TransactionType
+
 		if txType == "" {
 			txType = "Untyped"
 		}
@@ -59,6 +65,7 @@ func GeneratePeriodicReport(
 		if _, ok := report[periodKey]; !ok {
 			report[periodKey] = make(map[string]float64)
 		}
+
 		report[periodKey][txType] += tx.Bedrag
 	}
 
@@ -68,24 +75,33 @@ func GeneratePeriodicReport(
 // PrintPeriodicReport prints the report in a readable format.
 func PrintPeriodicReport(report map[string]map[string]float64, title string) {
 	fmt.Printf("\n=== %s ===\n", title)
+
 	for period, types := range report {
 		fmt.Printf("\nPeriod: %s\n", period)
+
 		for txType, amount := range types {
 			fmt.Printf("  %s: €%.2f\n", txType, amount)
 		}
 	}
 }
 
-// Filter and print transactions without a type
+// GenerateUntypedReport prints transactions without a type.
 func GenerateUntypedReport(transactions []models.Transaction) {
 	fmt.Println("Untyped Transactions:")
 
 	hasUntyped := false
+
 	for _, tx := range transactions {
 		if tx.TransactionType == "" {
 			hasUntyped = true
-			fmt.Printf("Boekdatum: %s, NaamTegenrekening: %s, Tegenrekening: %s, Omschrijving: %s\n",
-				tx.Boekdatum.Format("2006-01-02"), tx.NaamTegenrekening, tx.Tegenrekening, tx.Omschrijving)
+
+			fmt.Printf(
+				"Boekdatum: %s, NaamTegenrekening: %s, "+
+					"Tegenrekening: %s, Omschrijving: %s\n",
+				tx.Boekdatum.Format("2006-01-02"),
+				tx.NaamTegenrekening,
+				tx.Tegenrekening,
+				tx.Omschrijving)
 		}
 	}
 

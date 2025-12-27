@@ -1,8 +1,8 @@
+// Package main creates the CLI.
 package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 
@@ -11,14 +11,35 @@ import (
 	"github.com/dirc/expenses/internal/reports"
 )
 
+var Version = "dev" // Default value, overwrite during build.
+
 func main() {
 	// Define CLI flags
-	csvPath := flag.String("csv", "", "Path to the CSV file containing transactions")
-	yamlPath := flag.String("yaml", "", "Path to the YAML file containing transaction types")
-	reportPeriod := flag.String("period", "", "Report period (e.g., '3m' for 3 months, '4y' for 4 years)")
+	versionFlag := flag.Bool("version", false, "Print the version and exit")
+	csvPath := flag.String(
+		"csv",
+		"",
+		"Path to the CSV file containing transactions",
+	)
+	yamlPath := flag.String(
+		"yaml",
+		"",
+		"Path to the YAML file containing transaction types",
+	)
+	reportPeriod := flag.String(
+		"period",
+		"",
+		"Report period (e.g., '3m' for 3 months, '4y' for 4 years)",
+	)
 
 	// Parse flags
 	flag.Parse()
+
+	// Handle version flag
+	if *versionFlag {
+		log.Printf("expenses version: %s\n", Version)
+		os.Exit(0)
+	}
 
 	// Validate required flags
 	if *csvPath == "" || *yamlPath == "" || *reportPeriod == "" {
@@ -48,6 +69,6 @@ func main() {
 	}
 
 	// Print the report
-	reports.PrintPeriodicReport(report, fmt.Sprintf("Report for %s", *reportPeriod))
+	reports.PrintPeriodicReport(report, "Report for "+*reportPeriod)
 	reports.GenerateUntypedReport(transactions)
 }
