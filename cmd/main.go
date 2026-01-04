@@ -68,7 +68,12 @@ func main() {
 		log.Fatalf("Failed to generate report: %v", err)
 	}
 
+	filteredTransactions, err := reports.FilterByPeriod(transactions, *reportPeriod)
+	if err != nil {
+		log.Fatalf("Failed to filter transactions: %v", err)
+	}
+
 	// Print the report
 	reports.PrintPeriodicReport(report, "Report for "+*reportPeriod)
-	reports.GenerateUntypedReport(transactions)
+	reports.GenerateUntypedReport(filteredTransactions)
 }

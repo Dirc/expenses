@@ -31,16 +31,8 @@ func GeneratePeriodicReport(
 		return nil, errors.New("invalid duration format: use e.g. '3m' or '4y'")
 	}
 
-	now := time.Now()
+	cutoff := CalculateCutoff(duration, isMonth)
 	report := make(map[string]map[string]float64)
-
-	// Calculate the cutoff date
-	var cutoff time.Time
-	if isMonth {
-		cutoff = now.AddDate(0, -duration, 0)
-	} else {
-		cutoff = now.AddDate(-duration, 0, 0)
-	}
 
 	for _, tx := range transactions {
 		// Skip transactions older than the cutoff
@@ -70,6 +62,46 @@ func GeneratePeriodicReport(
 	}
 
 	return report, nil
+}
+
+// FilterByPeriod returns transactions that fall within the specified duration.
+func FilterByPeriod(
+	transactions []models.Transaction,
+	durationStr string,
+) ([]models.Transaction, error) {
+	duration, err := strconv.Atoi(durationStr[:len(durationStr)-1])
+	if err != nil {
+		return nil, fmt.Errorf("invalid duration: %w", err)
+	}
+
+	isMonth := strings.HasSuffix(durationStr, "m")
+	isYear := strings.HasSuffix(durationStr, "y")
+
+	if !isMonth && !isYear {
+		return nil, errors.New("invalid duration format: use e.g. '3m' or '4y'")
+	}
+
+	cutoff := CalculateCutoff(duration, isMonth)
+
+	var filtered []models.Transaction
+
+	for _, tx := range transactions {
+		if !tx.Boekdatum.Before(cutoff) {
+			filtered = append(filtered, tx)
+		}
+	}
+
+	return filtered, nil
+}
+
+// CalculateCutoff determines the start date based on duration and unit.
+func CalculateCutoff(duration int, isMonth bool) time.Time {
+	now := time.Now()
+	if isMonth {
+		return now.AddDate(0, -duration, 0)
+	}
+
+	return now.AddDate(-duration, 0, 0)
 }
 
 // PrintPeriodicReport prints the report in a readable format.

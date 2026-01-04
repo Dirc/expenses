@@ -79,3 +79,33 @@ func TestGenerateReport(t *testing.T) {
 		assert.Empty(t, report)
 	})
 }
+
+func TestFilterByPeriod(t *testing.T) {
+	now := time.Now()
+	transactions := []models.Transaction{
+		{
+			Boekdatum:       now.AddDate(0, -1, 0),
+			Omschrijving:    "Recent Untyped",
+			TransactionType: "", // Untyped
+		},
+		{
+			Boekdatum:       now.AddDate(0, -6, 0),
+			Omschrijving:    "Old Untyped",
+			TransactionType: "", // Untyped
+		},
+	}
+
+	t.Run("Filters untyped transactions by date", func(t *testing.T) {
+		filtered, err := FilterByPeriod(transactions, "3m")
+		require.NoError(t, err)
+
+		// Only the recent untyped transaction should remain
+		assert.Len(t, filtered, 1)
+		assert.Equal(t, "Recent Untyped", filtered[0].Omschrijving)
+	})
+
+	t.Run("Invalid duration format", func(t *testing.T) {
+		_, err := FilterByPeriod(transactions, "10d") // 'd' is not supported
+		assert.Error(t, err)
+	})
+}
