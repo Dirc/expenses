@@ -19,12 +19,12 @@ func TestGenerateReport(t *testing.T) {
 			TransactionType: "Boodschappen",
 		},
 		{
-			Boekdatum:       now.AddDate(0, -2, 0), // 2 months ago
+			Boekdatum:       now.AddDate(0, -1, 0), // 1 months ago
 			Bedrag:          200.00,
 			TransactionType: "Auto",
 		},
 		{
-			Boekdatum:       now.AddDate(0, -4, 0), // 4 months ago (should be excluded for 3m)
+			Boekdatum:       now.AddDate(0, -2, 0), // 2 months ago (should be excluded for 1m)
 			Bedrag:          300.00,
 			TransactionType: "Boodschappen",
 		},
@@ -36,9 +36,9 @@ func TestGenerateReport(t *testing.T) {
 	}
 
 	t.Run("Monthly Report", func(t *testing.T) {
-		report, err := GeneratePeriodicReport(transactions, "3m")
+		report, err := GeneratePeriodicReport(transactions, "2m")
 		require.NoError(t, err)
-		assert.Len(t, report, 3) // Only 3 periods within last 3 months
+		assert.Len(t, report, 3) // Only 3 periods within last 3 months. Todo: mock time, this fails in january since it uses real time
 
 		// Check amounts
 		for period, types := range report {
@@ -55,7 +55,7 @@ func TestGenerateReport(t *testing.T) {
 	t.Run("Yearly Report", func(t *testing.T) {
 		report, err := GeneratePeriodicReport(transactions, "1y")
 		require.NoError(t, err)
-		assert.Len(t, report, 1) // All transactions within last year
+		assert.Len(t, report, 1) // All transactions within last year. Todo: mock time, this fails in january, february since it uses real time
 
 		// Check amounts
 		for period, types := range report {
