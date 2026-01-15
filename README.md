@@ -51,10 +51,16 @@ Boekdatum	Rekeningnummer	Bedrag	Debet / Credit	Naam tegenrekening	Tegenrekening	
 - [x] CLI
 - [x] linting
 
-### v2.2*
+### v2.2
 
-- [ ] Load to sqlite (or duckdb?)
-- [ ] incremental updates
+- [ ] Seperate report and untyped (+ cli commands)
+- [ ] show transactions per type
+- [ ] rename: type -> category?
+
+### future ideas
+
+- [ ] Load to sqlite (or duckdb?) -> nice, but so far the data is small enough to generate on the fly
+- [ ] incremental updates -> idem
 - [ ] UI
 - [ ] Variable csv columns
 
